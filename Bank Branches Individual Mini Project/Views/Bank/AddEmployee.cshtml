@@ -1,0 +1,44 @@
+﻿@model AddEmployeeForm
+
+
+<h2>Add Employee</h2>
+
+<form asp-action="AddEmployee" method="post">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CivilId" class="control-label"></label>
+        <input asp-for="CivilId" class="form-control" />
+        <span asp-validation-for="CivilId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Position" class="control-label"></label>
+        <input asp-for="Position" class="form-control" />
+        <span asp-validation-for="Position" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Employee</button>
+</form>
+
+<a asp-action="Index">Back to List</a>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+@*the @section Scripts is a Razor directive used in ASP.NET Core MVC to include script references at the bottom of the view. In this case, @{await Html.RenderPartialAsync("_ValidationScriptsPartial");} is used to include client-side validation scripts.
+
+Explanation:
+
+@section Scripts: Defines a section in the view named "Scripts".
+@{ ... }: Executes C# code within the Razor view.
+await Html.RenderPartialAsync("_ValidationScriptsPartial");: Renders the partial view named "_ValidationScriptsPartial" asynchronously. This partial view contains script references required for client-side validation.
+The purpose of including these scripts is to enable client-side validation of form input fields. The Html.RenderPartialAsync method renders a partial view, and _ValidationScriptsPartial is a built-in partial view provided by ASP.NET Core MVC to include the necessary client-side validation scripts. These scripts enable validation of form input fields on the client side before the form is submitted to the server.
+
+
+ *@
+
+

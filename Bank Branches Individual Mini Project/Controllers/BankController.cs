@@ -1,5 +1,6 @@
 ﻿using Bank_Branches_Individual_Mini_Project.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bank_Branches_Individual_Mini_Project.Controllers
 {
@@ -54,12 +55,12 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
             using (var context = new BankContext())
             {
                 var data = context.BankBranches.ToList();
-                var branch = data.SingleOrDefault(a => a.Id == id);
-                if (branch == null)
+                var employee = context.BankBranches.Include(r => r.Employees).SingleOrDefault(a => a.Id ==id);   
+                if (employee == null)
                 {
                     return RedirectToAction("Index");
                 }
-                return View(branch);
+                return View(employee);
             }
         }
         public IActionResult Search(string search)
@@ -112,7 +113,43 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
 
             return View(data);
         }
-    }
 
+        [HttpGet]
+        public IActionResult AddEmployee(int id) {
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddEmployee(int id, AddEmployeeForm employeeForm) {
+            if (ModelState.IsValid)
+            {
+                using (var context = new BankContext())
+
+                {
+                    if (context.Employees.Any(e => e.CivilId == employeeForm.CivilId))
+                    {
+                        ModelState.AddModelError("CivilId", "Employee with this Civil ID already exists.");
+                        return View(employeeForm);
+                    }
+                    var branch = context.BankBranches.Find(id);
+                    var newEmployee = new Employee();
+                    newEmployee.Name = employeeForm.Name;
+                    newEmployee.Position = employeeForm.Position;
+                    newEmployee.CivilId = employeeForm.CivilId;
+                    branch.Employees.Add(newEmployee);
+                    context.SaveChanges();
+                }
+                return RedirectToAction("Index");
+
+            }
+
+            return View(employeeForm);
+        }
+
+
+
+    }
 }
+   
 

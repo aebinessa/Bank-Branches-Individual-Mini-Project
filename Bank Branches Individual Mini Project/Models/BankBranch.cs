@@ -7,6 +7,8 @@
         public string Location { get; set; }
         public string BranchManager { get; set; }
         public int EmployeeCount { get; set; }
+        public List<Employee> Employees { get; set; }=new List<Employee>();
+
 
 
     }
