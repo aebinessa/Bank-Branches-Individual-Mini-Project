@@ -15,10 +15,20 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
 
         public IActionResult Index()
         {
+            var viewModel = new BankDashboardViewModel
+            {
+                TotalBranches = _context.BankBranches.Count(),
+                //TotalEmployees = _context.BankBranches.Select(r=> r.Employees.Count).Sum(),
+                TotalEmployees = _context.Employees.Count(),
+                BranchList = _context.BankBranches.ToList(),
+                BranchWithMostEmployees = _context.BankBranches.OrderByDescending(b =>b.Employees.Count).FirstOrDefault()
 
 
-            var data = _context.BankBranches.ToList();
-            return View(data);
+            };
+            
+            return View(viewModel);
+
+        
 
         }
         [HttpGet]
@@ -148,6 +158,8 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
 
             return View(employeeForm);
         }
+
+
     }
 }
 
