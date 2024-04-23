@@ -6,14 +6,20 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
 {
     public class BankController : Controller
     {
+        private readonly BankContext _context;
+
+        public BankController(BankContext context)
+        {
+            _context = context;
+        }
 
         public IActionResult Index()
         {
-            using (var context = new BankContext())
-            {
-                var data = context.BankBranches.ToList();
-                return View(data);
-            }
+
+
+            var data = _context.BankBranches.ToList();
+            return View(data);
+
         }
         [HttpGet]
         public IActionResult AddBranch()
@@ -35,11 +41,11 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
                 };
 
                 // Add the new branch to the database
-                using (var context = new BankContext())
-                {
-                    context.BankBranches.Add(newBranch);
-                    context.SaveChanges();
-                }
+
+
+                _context.BankBranches.Add(newBranch);
+                _context.SaveChanges();
+
 
                 return RedirectToAction("Index");
             }
@@ -52,46 +58,43 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
         public IActionResult Details(int id)
         {
 
-            using (var context = new BankContext())
+
+
+            var data = _context.BankBranches.ToList();
+            var employee = _context.BankBranches.Include(r => r.Employees).SingleOrDefault(a => a.Id == id);
+            if (employee == null)
             {
-                var data = context.BankBranches.ToList();
-                var employee = context.BankBranches.Include(r => r.Employees).SingleOrDefault(a => a.Id ==id);   
-                if (employee == null)
-                {
-                    return RedirectToAction("Index");
-                }
-                return View(employee);
+                return RedirectToAction("Index");
             }
+            return View(employee);
+
         }
         public IActionResult Search(string search)
         {
-            using (var context = new BankContext())
+
+            var branches = _context.BankBranches.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
             {
-                var branches = context.BankBranches.AsQueryable();
-
-                if (!string.IsNullOrEmpty(search))
-                {
-                    branches = branches.Where(b => b.Name.StartsWith(search));
-                }
-
-                var data = branches.ToList();
-                return View("Index", data);
+                branches = branches.Where(b => b.Name.StartsWith(search));
             }
+
+            var data = branches.ToList();
+            return View("Index", data);
+
         }
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            using (var context = new BankContext())
-            {
-                var data = context.BankBranches.FirstOrDefault(b => b.Id == id);
-                if (data == null)
-                {
-                    return RedirectToAction("Index");
-                }
-                return View(data);
-            }
-        }
 
+
+            var data = _context.BankBranches.FirstOrDefault(b => b.Id == id);
+            if (data == null)
+            {
+                return RedirectToAction("Index");
+            }
+            return View(data);
+        }
         [HttpPost]
         public IActionResult Edit(int id, BankBranch data)
         {
@@ -102,11 +105,10 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
 
             if (ModelState.IsValid)
             {
-                using (var context = new BankContext())
-                {
-                    context.Update(data);
-                    context.SaveChanges();
-                }
+
+                _context.Update(data);
+                _context.SaveChanges();
+
 
                 return RedirectToAction("Index");
             }
@@ -115,41 +117,39 @@ namespace Bank_Branches_Individual_Mini_Project.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddEmployee(int id) {
+        public IActionResult AddEmployee(int id)
+        {
 
             return View();
         }
 
         [HttpPost]
-        public IActionResult AddEmployee(int id, AddEmployeeForm employeeForm) {
+        public IActionResult AddEmployee(int id, AddEmployeeForm employeeForm)
+        {
             if (ModelState.IsValid)
             {
-                using (var context = new BankContext())
 
+                if (_context.Employees.Any(e => e.CivilId == employeeForm.CivilId))
                 {
-                    if (context.Employees.Any(e => e.CivilId == employeeForm.CivilId))
-                    {
-                        ModelState.AddModelError("CivilId", "Employee with this Civil ID already exists.");
-                        return View(employeeForm);
-                    }
-                    var branch = context.BankBranches.Find(id);
-                    var newEmployee = new Employee();
-                    newEmployee.Name = employeeForm.Name;
-                    newEmployee.Position = employeeForm.Position;
-                    newEmployee.CivilId = employeeForm.CivilId;
-                    branch.Employees.Add(newEmployee);
-                    context.SaveChanges();
+                    ModelState.AddModelError("CivilId", "Employee with this Civil ID already exists.");
+                    return View(employeeForm);
                 }
+                var branch = _context.BankBranches.Find(id);
+                var newEmployee = new Employee();
+                newEmployee.Name = employeeForm.Name;
+                newEmployee.Position = employeeForm.Position;
+                newEmployee.CivilId = employeeForm.CivilId;
+                branch.Employees.Add(newEmployee);
+                _context.SaveChanges();
+
                 return RedirectToAction("Index");
 
             }
 
             return View(employeeForm);
         }
-
-
-
     }
 }
-   
+
+
 
